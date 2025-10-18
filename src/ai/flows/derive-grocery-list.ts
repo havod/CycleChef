@@ -23,6 +23,7 @@ export type DeriveGroceryListInput = z.infer<typeof DeriveGroceryListInputSchema
 
 const DeriveGroceryListOutputSchema = z.object({
   groceryList: z.string().describe('A list of grocery items with estimated prices, grouped by store section.'),
+  estimatedPrice: z.number().optional().describe('The estimated total price for the grocery list in the specified currency.'),
 });
 
 export type DeriveGroceryListOutput = z.infer<typeof DeriveGroceryListOutputSchema>;
@@ -57,6 +58,7 @@ const prompt = ai.definePrompt({
   - Estimate prices for each item in {{currency}}, based on the specified country and grocery store.
   - Group items by store section (e.g., Produce, Dairy, Meat, Pantry).
   - Format the output using Markdown. Use headings for sections.
+  - At the end of the generation, provide a total estimated price for all items in the list.
   `,
 });
 

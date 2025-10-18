@@ -23,7 +23,8 @@ export default function GroceryListPage() {
   const [groceryList, setGroceryList] = useState<DeriveGroceryListOutput | null>(null);
   
   const userCountry = profile?.country || 'USA';
-  const availableStores = useMemo(() => countryData[userCountry]?.stores || countryData['Other'].stores, [userCountry]);
+  const countryInfo = useMemo(() => countryData[userCountry] || countryData['Other'], [userCountry]);
+  const availableStores = useMemo(() => countryInfo.stores, [countryInfo]);
   
   const [selectedStore, setSelectedStore] = useState<string>(defaultStore);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,6 @@ export default function GroceryListPage() {
     setIsLoading(true);
     setGroceryList(null);
     try {
-      const countryInfo = countryData[userCountry] || countryData['Other'];
       const output = await deriveGroceryList({
         mealPlan: mealPlan.mealPlan,
         budget: profile?.budget,
@@ -54,7 +54,7 @@ export default function GroceryListPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [mealPlan, profile, toast, userCountry]);
+  }, [mealPlan, profile, toast, countryInfo]);
 
   useEffect(() => {
     if (mealPlan) {
@@ -116,6 +116,13 @@ export default function GroceryListPage() {
                 <Card>
                     <CardContent className="p-6">
                         <InteractiveGroceryList markdownContent={groceryList.groceryList} />
+                         {groceryList.estimatedPrice && (
+                          <div className="mt-6 border-t pt-4 text-right">
+                              <p className="text-lg font-semibold">
+                                  Estimated Total: <span className='font-bold'>{countryInfo.currencySymbol}{groceryList.estimatedPrice.toFixed(2)}</span>
+                              </p>
+                          </div>
+                        )}
                     </CardContent>
                 </Card>
              </div>
