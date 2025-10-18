@@ -178,8 +178,46 @@ export const blogPosts: BlogPost[] = [
 ];
 
 export const userProfileData = {
-  countries: ["USA", "Canada", "France", "Germany", "UK", "Other"],
+  countries: ["USA", "Canada", "UK", "Germany", "France", "Australia", "Other"],
   dietaryPreferences: ["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Allergy", "Other"],
   healthConditions: ["Endometriosis", "PCOS", "Acne", "Irregular Periods", "None"],
   nutritionalGoals: ["Weight Loss", "Weight Gain", "Improve Nutrition", "Stay Fit", "Build Muscle"],
-}
+};
+
+export const countryData: Record<string, { currency: string; currencySymbol: string; stores: string[] }> = {
+    "USA": {
+        currency: "USD",
+        currencySymbol: "$",
+        stores: ["Any Store", "Trader Joe's", "Whole Foods", "Costco", "Walmart", "Safeway", "Kroger"],
+    },
+    "Canada": {
+        currency: "CAD",
+        currencySymbol: "$",
+        stores: ["Any Store", "Loblaws", "Sobeys", "Metro", "Costco", "Walmart"],
+    },
+    "UK": {
+        currency: "GBP",
+        currencySymbol: "£",
+        stores: ["Any Store", "Tesco", "Sainsbury's", "Asda", "Morrisons", "Lidl", "Aldi"],
+    },
+    "Germany": {
+        currency: "EUR",
+        currencySymbol: "€",
+        stores: ["Any Store", "Edeka", "Rewe", "Lidl", "Aldi", "Kaufland"],
+    },
+    "France": {
+        currency: "EUR",
+        currencySymbol: "€",
+        stores: ["Any Store", "Carrefour", "E.Leclerc", "Intermarché", "Auchan", "Lidl"],
+    },
+    "Australia": {
+        currency: "AUD",
+        currencySymbol: "$",
+        stores: ["Any Store", "Woolworths", "Coles", "Aldi", "IGA"],
+    },
+     "Other": {
+        currency: "USD",
+        currencySymbol: "$",
+        stores: ["Any Store"],
+    }
+};

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Printer, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/page-header';
@@ -14,13 +14,18 @@ import Link from 'next/link';
 import { InteractiveGroceryList } from '@/components/interactive-grocery-list';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { countryData } from '@/lib/data';
 
-const groceryStores = ['Any Store', "Trader Joe's", 'Whole Foods', 'Costco', 'Walmart', 'Safeway'];
+const defaultStore = 'Any Store';
 
 export default function GroceryListPage() {
   const { mealPlan, profile } = useApp();
   const [groceryList, setGroceryList] = useState<DeriveGroceryListOutput | null>(null);
-  const [selectedStore, setSelectedStore] = useState<string>('Any Store');
+  
+  const userCountry = profile?.country || 'USA';
+  const availableStores = useMemo(() => countryData[userCountry]?.stores || countryData['Other'].stores, [userCountry]);
+  
+  const [selectedStore, setSelectedStore] = useState<string>(defaultStore);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -30,10 +35,13 @@ export default function GroceryListPage() {
     setIsLoading(true);
     setGroceryList(null);
     try {
+      const countryInfo = countryData[userCountry] || countryData['Other'];
       const output = await deriveGroceryList({
         mealPlan: mealPlan.mealPlan,
         budget: profile?.budget,
         groceryStore: store,
+        country: profile?.country,
+        currency: countryInfo.currency,
       });
       setGroceryList(output);
     } catch (error) {
@@ -46,7 +54,7 @@ export default function GroceryListPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [mealPlan, profile?.budget, toast]);
+  }, [mealPlan, profile, toast, userCountry]);
 
   useEffect(() => {
     if (mealPlan) {
@@ -54,6 +62,14 @@ export default function GroceryListPage() {
     }
   }, [mealPlan, selectedStore, generateList]);
   
+    // Reset selected store if it's not in the new list of available stores
+  useEffect(() => {
+    if (!availableStores.includes(selectedStore)) {
+        setSelectedStore(defaultStore);
+    }
+  }, [availableStores, selectedStore]);
+
+
   const handlePrint = () => {
     window.print();
   };
@@ -123,12 +139,12 @@ export default function GroceryListPage() {
             <div className="flex items-center gap-4">
               <div className="grid gap-1.5">
                 <Label htmlFor="grocery-store">Store</Label>
-                 <Select onValueChange={setSelectedStore} defaultValue={selectedStore}>
+                 <Select onValueChange={setSelectedStore} value={selectedStore}>
                   <SelectTrigger id="grocery-store" className="w-48">
                     <SelectValue placeholder="Select a store" />
                   </SelectTrigger>
                   <SelectContent>
-                    {groceryStores.map(store => (
+                    {availableStores.map(store => (
                       <SelectItem key={store} value={store}>{store}</SelectItem>
                     ))}
                   </SelectContent>

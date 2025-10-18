@@ -15,6 +15,7 @@ import { Bot, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { FormItem } from '@/components/ui/form';
+import { countryData } from '@/lib/data';
 
 type BudgetFrequency = 'weekly' | 'bi-weekly' | 'monthly';
 
@@ -27,6 +28,9 @@ export default function MealPlannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerateMealPlanOutput | null>(mealPlan);
   const { toast } = useToast();
+
+  const userCountry = profile?.country || 'USA';
+  const currencySymbol = (countryData[userCountry] || countryData['Other']).currencySymbol;
 
   const handleGenerate = async () => {
     if (!profile) {
@@ -105,7 +109,7 @@ export default function MealPlannerPage() {
           <div className="space-y-4">
             <Label>Budget</Label>
             <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground'>$</span>
+                <span className='text-muted-foreground text-lg'>{currencySymbol}</span>
                 <Input
                     id="budget"
                     type='number'

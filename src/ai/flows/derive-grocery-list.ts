@@ -15,6 +15,8 @@ const DeriveGroceryListInputSchema = z.object({
   mealPlan: z.string().describe('The meal plan to derive the grocery list from.'),
   budget: z.number().optional().describe('The user’s weekly or monthly budget for the meal plan'),
   groceryStore: z.string().optional().describe("The user's preferred grocery store (e.g., 'Trader Joe's', 'Whole Foods', 'Any')."),
+  country: z.string().optional().describe("The user's country of residence."),
+  currency: z.string().optional().describe("The currency for price estimations (e.g., USD, EUR)."),
 });
 
 export type DeriveGroceryListInput = z.infer<typeof DeriveGroceryListInputSchema>;
@@ -35,22 +37,24 @@ const prompt = ai.definePrompt({
   name: 'deriveGroceryListPrompt',
   input: {schema: DeriveGroceryListInputSchema},
   output: {schema: DeriveGroceryListOutputSchema},
-  prompt: `You are an AI assistant specialized in generating grocery lists from meal plans.
+  prompt: `You are an AI assistant specialized in generating grocery lists from meal plans, tailored to a user's location and preferred store.
 
   Generate a grocery list based on the following meal plan:
   {{mealPlan}}
 
+  The user is located in {{country}}. All price estimates should be in {{currency}}.
+
   {{#if groceryStore}}
-  The user prefers to shop at {{groceryStore}}. Tailor the item suggestions and estimated prices to this store. If the store is "Any Store", provide general estimates.
+  The user prefers to shop at {{groceryStore}}. Tailor the item suggestions and estimated prices to this store. If the store is "Any Store", provide general estimates relevant to the user's country.
   {{/if}}
 
   {{#if budget}}
-  Consider the user's budget of {{budget}} when generating the grocery list. Provide options that allow the user to stay within their budget.
+  Consider the user's budget of {{budget}} {{currency}} when generating the grocery list. Provide options that allow the user to stay within their budget.
   {{/if}}
 
   The grocery list should:
   - Include all ingredients necessary for the meal plan.
-  - Estimate prices for each item based on the specified grocery store.
+  - Estimate prices for each item in {{currency}}, based on the specified country and grocery store.
   - Group items by store section (e.g., Produce, Dairy, Meat, Pantry).
   - Format the output using Markdown. Use headings for sections.
   `,
