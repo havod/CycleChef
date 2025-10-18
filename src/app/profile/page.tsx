@@ -42,7 +42,9 @@ const profileFormSchema = z.object({
   menstrualCycle: z.enum(['regular', 'irregular']).optional(),
   healthConditions: z.array(z.string()).optional(),
   weight: z.coerce.number().min(1).optional(),
+  weightUnit: z.enum(['kg', 'lbs']).default('kg').optional(),
   height: z.coerce.number().min(1).optional(),
+  heightUnit: z.enum(['cm', 'ft']).default('cm').optional(),
   nutritionalGoals: z.array(z.string()).optional(),
   activityLevel: z.enum(['very', 'not', 'medium']).optional(),
 });
@@ -61,6 +63,8 @@ export default function ProfilePage() {
       healthConditions: [],
       nutritionalGoals: [],
       otherDietaryPreference: '',
+      weightUnit: 'kg',
+      heightUnit: 'cm',
     },
   });
 
@@ -163,22 +167,75 @@ export default function ProfilePage() {
                 <CardTitle className='font-headline'>Health & Nutrition</CardTitle>
             </CardHeader>
             <CardContent className='space-y-6'>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="weight" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Weight (kg)</FormLabel>
-                            <FormControl><Input type="number" placeholder="65" {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                    <FormField control={form.control} name="height" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Height (cm)</FormLabel>
-                            <FormControl><Input type="number" placeholder="170" {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
+                <div className="grid md:grid-cols-2 gap-6 items-end">
+                  <FormField
+                    control={form.control}
+                    name="weight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Weight</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="65" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="weightUnit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select unit" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="kg">kg</SelectItem>
+                            <SelectItem value="lbs">lbs</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="height"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Height</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="170" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="heightUnit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select unit" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="cm">cm</SelectItem>
+                            <SelectItem value="ft">ft</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+
                  <FormField control={form.control} name="activityLevel" render={({ field }) => (
                     <FormItem className="space-y-3">
                         <FormLabel>Activity Level</FormLabel>

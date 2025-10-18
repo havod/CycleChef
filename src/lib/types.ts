@@ -8,7 +8,9 @@ export type UserProfile = {
   menstrualCycle?: 'regular' | 'irregular';
   healthConditions?: string[];
   weight?: number;
+  weightUnit?: 'kg' | 'lbs';
   height?: number;
+  heightUnit?: 'cm' | 'ft';
   nutritionalGoals?: string[];
   activityLevel?: 'very' | 'not' | 'medium';
   budget?: number;
@@ -22,7 +24,7 @@ export type ImagePlaceholder = {
 };
 
 export type Recipe = {
-  id: string;
+  id:string;
   title: string;
   description: string;
   ingredients: string[];

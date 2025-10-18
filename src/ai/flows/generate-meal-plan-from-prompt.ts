@@ -27,7 +27,9 @@ const GenerateMealPlanFromPromptInputSchema = z.object({
     menstrualCycle: z.enum(['regular', 'irregular']).optional(),
     healthConditions: z.array(z.string()).describe('Health conditions like Endometriosis, PCOS, acne, etc.').optional(),
     weight: z.number().optional(),
+    weightUnit: z.enum(['kg', 'lbs']).optional(),
     height: z.number().optional(),
+    heightUnit: z.enum(['cm', 'ft']).optional(),
     nutritionalGoals: z.array(z.string()).describe('Nutritional goals like weight loss, staying fit, weight gain').optional(),
     activityLevel: z.enum(['very', 'not', 'medium']).optional(),
     budget: z.number().optional().describe('Weekly or monthly budget for meal plan'),
@@ -66,8 +68,8 @@ const prompt = ai.definePrompt({
   {{#if userProfile.otherDietaryPreference}}Other Dietary Preference: {{userProfile.otherDietaryPreference}}{{/if}}
   Menstrual Cycle: {{userProfile.menstrualCycle}}
   Health Conditions: {{#each userProfile.healthConditions}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
-  Weight: {{userProfile.weight}}
-  Height: {{userProfile.height}}
+  Weight: {{userProfile.weight}} {{userProfile.weightUnit}}
+  Height: {{userProfile.height}} {{userProfile.heightUnit}}
   Nutritional Goals: {{#each userProfile.nutritionalGoals}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
   Activity Level: {{userProfile.activityLevel}}
   Budget: {{userProfile.budget}}
