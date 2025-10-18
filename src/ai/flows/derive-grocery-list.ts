@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const DeriveGroceryListInputSchema = z.object({
   mealPlan: z.string().describe('The meal plan to derive the grocery list from.'),
-  budget: z.number().optional().describe('The user\u2019s weekly or monthly budget for the meal plan'),
+  budget: z.number().optional().describe('The user’s weekly or monthly budget for the meal plan'),
 });
 
 export type DeriveGroceryListInput = z.infer<typeof DeriveGroceryListInputSchema>;
@@ -47,4 +47,18 @@ const prompt = ai.definePrompt({
   - Include all ingredients necessary for the meal plan.
   - Estimate prices for each item.
   - Group items by store section (e.g., Produce, Dairy, Meat, Pantry).
-  - Format the output using Markdown. Use headings for sections (e.g., \
+  - Format the output using Markdown. Use headings for sections.
+  `,
+});
+
+const deriveGroceryListFlow = ai.defineFlow(
+  {
+    name: 'deriveGroceryListFlow',
+    inputSchema: DeriveGroceryListInputSchema,
+    outputSchema: DeriveGroceryListOutputSchema,
+  },
+  async input => {
+    const {output} = await prompt(input);
+    return output!;
+  }
+);
