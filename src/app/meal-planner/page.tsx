@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Bot, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { FormItem } from '@/components/ui/form';
 
 type BudgetFrequency = 'weekly' | 'bi-weekly' | 'monthly';
 
