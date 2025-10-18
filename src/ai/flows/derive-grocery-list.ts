@@ -14,6 +14,7 @@ import {z} from 'genkit';
 const DeriveGroceryListInputSchema = z.object({
   mealPlan: z.string().describe('The meal plan to derive the grocery list from.'),
   budget: z.number().optional().describe('The user’s weekly or monthly budget for the meal plan'),
+  groceryStore: z.string().optional().describe("The user's preferred grocery store (e.g., 'Trader Joe's', 'Whole Foods', 'Any')."),
 });
 
 export type DeriveGroceryListInput = z.infer<typeof DeriveGroceryListInputSchema>;
@@ -39,13 +40,17 @@ const prompt = ai.definePrompt({
   Generate a grocery list based on the following meal plan:
   {{mealPlan}}
 
-  {% if budget %}
+  {{#if groceryStore}}
+  The user prefers to shop at {{groceryStore}}. Tailor the item suggestions and estimated prices to this store. If the store is "Any Store", provide general estimates.
+  {{/if}}
+
+  {{#if budget}}
   Consider the user's budget of {{budget}} when generating the grocery list. Provide options that allow the user to stay within their budget.
-  {% endif %}
+  {{/if}}
 
   The grocery list should:
   - Include all ingredients necessary for the meal plan.
-  - Estimate prices for each item.
+  - Estimate prices for each item based on the specified grocery store.
   - Group items by store section (e.g., Produce, Dairy, Meat, Pantry).
   - Format the output using Markdown. Use headings for sections.
   `,

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Printer, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/page-header';
@@ -12,43 +12,52 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { InteractiveGroceryList } from '@/components/interactive-grocery-list';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+
+const groceryStores = ['Any Store', "Trader Joe's", 'Whole Foods', 'Costco', 'Walmart', 'Safeway'];
 
 export default function GroceryListPage() {
   const { mealPlan, profile } = useApp();
   const [groceryList, setGroceryList] = useState<DeriveGroceryListOutput | null>(null);
+  const [selectedStore, setSelectedStore] = useState<string>('Any Store');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (mealPlan) {
-      const generateList = async () => {
-        setIsLoading(true);
-        setGroceryList(null);
-        try {
-          const output = await deriveGroceryList({
-            mealPlan: mealPlan.mealPlan,
-            budget: profile?.budget,
-          });
-          setGroceryList(output);
-        } catch (error) {
-          console.error(error);
-          toast({
-            title: 'An error occurred',
-            description: 'Failed to generate grocery list. Please try again.',
-            variant: 'destructive',
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      generateList();
+  const generateList = useCallback(async (store: string) => {
+    if (!mealPlan) return;
+
+    setIsLoading(true);
+    setGroceryList(null);
+    try {
+      const output = await deriveGroceryList({
+        mealPlan: mealPlan.mealPlan,
+        budget: profile?.budget,
+        groceryStore: store,
+      });
+      setGroceryList(output);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'An error occurred',
+        description: 'Failed to generate grocery list. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   }, [mealPlan, profile?.budget, toast]);
+
+  useEffect(() => {
+    if (mealPlan) {
+      generateList(selectedStore);
+    }
+  }, [mealPlan, selectedStore, generateList]);
   
   const handlePrint = () => {
     window.print();
   };
-
+  
   const renderContent = () => {
     if (isLoading) {
         return (
@@ -103,18 +112,33 @@ export default function GroceryListPage() {
   return (
     <div className="container relative">
       <PageHeader className="pb-8 no-print">
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <PageHeaderHeading className="font-headline">Your Grocery List</PageHeaderHeading>
             <PageHeaderDescription>
               Automatically generated from your meal plan. Ready for your shopping trip.
             </PageHeaderDescription>
           </div>
-          {groceryList && (
-            <Button onClick={handlePrint} variant="outline" size="icon" className="hidden md:inline-flex">
-              <Printer className="size-4" />
-              <span className="sr-only">Print List</span>
-            </Button>
+           {groceryList && (
+            <div className="flex items-center gap-4">
+              <div className="grid gap-1.5">
+                <Label htmlFor="grocery-store">Store</Label>
+                 <Select onValueChange={setSelectedStore} defaultValue={selectedStore}>
+                  <SelectTrigger id="grocery-store" className="w-48">
+                    <SelectValue placeholder="Select a store" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groceryStores.map(store => (
+                      <SelectItem key={store} value={store}>{store}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handlePrint} variant="outline" size="icon" className="hidden md:inline-flex self-end">
+                <Printer className="size-4" />
+                <span className="sr-only">Print List</span>
+              </Button>
+            </div>
           )}
         </div>
       </PageHeader>
