@@ -193,7 +193,7 @@ export const countryData: Record<string, { currency: string; currencySymbol: str
     "Canada": {
         currency: "CAD",
         currencySymbol: "$",
-        stores: ["Any Store", "Loblaws", "Sobeys", "Metro", "Costco", "Walmart"],
+        stores: ["Any Store", "Loblaws", "Sobeys", "Metro", "Costco", "Walmart", "Maxi"],
     },
     "UK": {
         currency: "GBP",
