@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "meal-planner-card",
+      "description": "A vibrant flat lay of healthy food ingredients on a table.",
+      "imageUrl": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxoZWFsdGh5JTIwZm9vZHxlbnwwfHx8fDE3NjA3MzEwNzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "healthy food"
+    },
+    {
+      "id": "recipes-card",
+      "description": "A close-up shot of a colorful salad in a bowl.",
+      "imageUrl": "https://images.unsplash.com/photo-1697615205933-3827e5f00676?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb2xvcmZ1bCUyMHNhbGFkfGVufDB8fHx8MTc2MDczNzk2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "colorful salad"
+    },
+    {
+      "id": "cycle-health-card",
+      "description": "A serene image of a woman meditating outdoors.",
+      "imageUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMG1lZGl0YXRpbmd8ZW58MHx8fHwxNzYwNzMwOTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman meditating"
+    },
+    {
+      "id": "recipe-1",
+      "description": "Lentil soup in a rustic bowl.",
+      "imageUrl": "https://images.unsplash.com/photo-1510431198580-7727c9fa1e3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsZW50aWwlMjBzb3VwfGVufDB8fHx8MTc2MDczNzM1Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lentil soup"
+    },
+    {
+      "id": "recipe-2",
+      "description": "Quinoa salad with avocado and roasted vegetables.",
+      "imageUrl": "https://images.unsplash.com/photo-1656853834420-51980b12a920?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxxdWlub2ElMjBzYWxhZHxlbnwwfHx8fDE3NjA3NDAxNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "quinoa salad"
+    },
+    {
+      "id": "recipe-3",
+      "description": "Grilled salmon with a side of asparagus.",
+      "imageUrl": "https://images.unsplash.com/photo-1641898378716-1f38ec04bb0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxncmlsbGVkJTIwc2FsbW9ufGVufDB8fHx8MTc2MDczMTMyMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grilled salmon"
+    },
+    {
+      "id": "recipe-4",
+      "description": "Dark chocolate avocado mousse.",
+      "imageUrl": "https://images.unsplash.com/photo-1551578657-a7e74acb0135?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjaG9jb2xhdGUlMjBtb3Vzc2V8ZW58MHx8fHwxNzYwNzM3MzU2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chocolate mousse"
+    },
+    {
+      "id": "blog-post-1",
+      "description": "Abstract illustration of the four phases of the menstrual cycle.",
+      "imageUrl": "https://images.unsplash.com/photo-1605551744467-87562158cf70?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhYnN0cmFjdCUyMGN5Y2xlfGVufDB8fHx8MTc2MDc5NzMxMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract cycle"
+    },
+    {
+      "id": "blog-post-2",
+      "description": "A variety of seeds and nuts in small bowls.",
+      "imageUrl": "https://images.unsplash.com/photo-1709649991855-eb6c24d85229?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzZWVkcyUyMG51dHN8ZW58MHx8fHwxNzYwNzk3MzEyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "seeds nuts"
+    }
+  ]
 }
