@@ -4,6 +4,7 @@ export type UserProfile = {
   gender?: 'F' | 'M' | 'Non defined';
   country?: string;
   dietaryPreferences?: string[];
+  otherDietaryPreference?: string;
   menstrualCycle?: 'regular' | 'irregular';
   healthConditions?: string[];
   weight?: number;

@@ -179,7 +179,7 @@ export const blogPosts: BlogPost[] = [
 
 export const userProfileData = {
   countries: ["USA", "Canada", "France", "Germany", "UK", "Other"],
-  dietaryPreferences: ["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Allergy"],
+  dietaryPreferences: ["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Allergy", "Other"],
   healthConditions: ["Endometriosis", "PCOS", "Acne", "Irregular Periods", "None"],
   nutritionalGoals: ["Weight Loss", "Weight Gain", "Improve Nutrition", "Stay Fit", "Build Muscle"],
 }

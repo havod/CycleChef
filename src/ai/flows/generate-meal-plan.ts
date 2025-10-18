@@ -20,6 +20,7 @@ const GenerateMealPlanInputSchema = z.object({
       .array(z.string())
       .describe('Dietary preferences like vegetarian, gluten-free, allergies')
       .optional(),
+    otherDietaryPreference: z.string().describe('Other dietary preference or allergy specified by the user.').optional(),
     menstrualCycle: z.enum(['regular', 'irregular']).optional(),
     healthConditions: z.array(z.string()).describe('Health conditions like Endometriosis, PCOS, acne, etc.').optional(),
     weight: z.number().optional(),
@@ -57,6 +58,7 @@ const prompt = ai.definePrompt({
   Gender: {{userProfile.gender}}
   Country: {{userProfile.country}}
   Dietary Preferences: {{#each userProfile.dietaryPreferences}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
+  {{#if userProfile.otherDietaryPreference}}Other Dietary Preference: {{userProfile.otherDietaryPreference}}{{/if}}
   Menstrual Cycle: {{userProfile.menstrualCycle}}
   Health Conditions: {{#each userProfile.healthConditions}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
   Weight: {{userProfile.weight}}
@@ -104,4 +106,3 @@ const generateMealPlanFlow = ai.defineFlow(
     return output!;
   }
 );
-

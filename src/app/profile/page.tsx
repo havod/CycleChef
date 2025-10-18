@@ -29,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import { userProfileData } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const profileFormSchema = z.object({
@@ -38,6 +38,7 @@ const profileFormSchema = z.object({
   gender: z.enum(['F', 'M', 'Non defined']).optional(),
   country: z.string().optional(),
   dietaryPreferences: z.array(z.string()).optional(),
+  otherDietaryPreference: z.string().optional(),
   menstrualCycle: z.enum(['regular', 'irregular']).optional(),
   healthConditions: z.array(z.string()).optional(),
   weight: z.coerce.number().min(1).optional(),
@@ -51,6 +52,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export default function ProfilePage() {
   const { profile, updateProfile, isLoading } = useApp();
   const { toast } = useToast();
+  const [showOtherDietaryPreference, setShowOtherDietaryPreference] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -58,14 +60,31 @@ export default function ProfilePage() {
       dietaryPreferences: [],
       healthConditions: [],
       nutritionalGoals: [],
+      otherDietaryPreference: '',
     },
   });
 
   useEffect(() => {
     if (profile) {
       form.reset(profile);
+      if (profile.dietaryPreferences?.includes('Other')) {
+        setShowOtherDietaryPreference(true);
+      }
     }
   }, [profile, form]);
+  
+  useEffect(() => {
+      const subscription = form.watch((value, { name }) => {
+          if (name === 'dietaryPreferences') {
+              const otherSelected = value.dietaryPreferences?.includes('Other');
+              setShowOtherDietaryPreference(Boolean(otherSelected));
+              if (!otherSelected) {
+                  form.setValue('otherDietaryPreference', '');
+              }
+          }
+      });
+      return () => subscription.unsubscribe();
+  }, [form]);
 
   function onSubmit(data: ProfileFormValues) {
     updateProfile(data);
@@ -256,6 +275,14 @@ export default function ProfilePage() {
                                     </FormItem>
                                 )} />
                             ))}
+                            {showOtherDietaryPreference && (
+                                <FormField control={form.control} name="otherDietaryPreference" render={({ field }) => (
+                                    <FormItem className="mt-2">
+                                        <FormControl><Input placeholder="Please specify" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            )}
                             <FormMessage />
                         </FormItem>
                     )} />
