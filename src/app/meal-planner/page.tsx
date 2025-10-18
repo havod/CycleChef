@@ -2,24 +2,29 @@
 
 import { useState } from 'react';
 import { useApp } from '@/components/providers';
-import { generateMealPlanFromPrompt, GenerateMealPlanFromPromptOutput } from '@/ai/flows/generate-meal-plan-from-prompt';
+import { generateMealPlan, GenerateMealPlanOutput } from '@/ai/flows/generate-meal-plan';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
+type BudgetFrequency = 'weekly' | 'bi-weekly' | 'monthly';
+
 export default function MealPlannerPage() {
   const { profile, isLoading: isProfileLoading, setMealPlan, mealPlan } = useApp();
-  const [prompt, setPrompt] = useState('A balanced, high-protein weekly meal plan for an active person.');
-  const [budget, setBudget] = useState(profile?.budget || 100);
+  const [preferences, setPreferences] = useState('');
+  const [budgetAmount, setBudgetAmount] = useState(profile?.budget || 100);
+  const [budgetFrequency, setBudgetFrequency] = useState<BudgetFrequency>('weekly');
+
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<GenerateMealPlanFromPromptOutput | null>(mealPlan);
+  const [result, setResult] = useState<GenerateMealPlanOutput | null>(mealPlan);
   const { toast } = useToast();
 
   const handleGenerate = async () => {
@@ -34,9 +39,13 @@ export default function MealPlannerPage() {
     setIsLoading(true);
     setResult(null);
     try {
-      const output = await generateMealPlanFromPrompt({
-        prompt,
-        userProfile: { ...profile, budget },
+      const output = await generateMealPlan({
+        userProfile: { 
+          ...profile, 
+          budget: budgetAmount,
+          budgetFrequency: budgetFrequency,
+          preferences: preferences,
+        },
       });
       setResult(output);
       setMealPlan(output);
@@ -83,25 +92,41 @@ export default function MealPlannerPage() {
         </PageHeader>
         <div className="space-y-6 mt-6">
           <div className="space-y-2">
-            <Label htmlFor="prompt">Your Goal</Label>
+            <Label htmlFor="preferences">Do you have any preference?</Label>
             <Textarea
-              id="prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g., 'high protein, low carb meals for weight loss'"
+              id="preferences"
+              value={preferences}
+              onChange={(e) => setPreferences(e.target.value)}
+              placeholder="e.g., 'I prefer quick meals', 'I don't like fish'"
               rows={4}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="budget">Weekly Budget: ${budget}</Label>
-            <Slider
-              id="budget"
-              min={25}
-              max={500}
-              step={5}
-              value={[budget]}
-              onValueChange={(value) => setBudget(value[0])}
-            />
+          <div className="space-y-4">
+            <Label>Budget</Label>
+            <div className='flex items-center gap-2'>
+                <span className='text-muted-foreground'>$</span>
+                <Input
+                    id="budget"
+                    type='number'
+                    value={budgetAmount}
+                    onChange={(e) => setBudgetAmount(Number(e.target.value))}
+                    className='w-24'
+                />
+            </div>
+            <RadioGroup onValueChange={(value: BudgetFrequency) => setBudgetFrequency(value)} defaultValue={budgetFrequency} className="flex space-x-4">
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                    <RadioGroupItem value="weekly" id="weekly" />
+                    <Label htmlFor='weekly' className="font-normal">Weekly</Label>
+                </FormItem>
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                    <RadioGroupItem value="bi-weekly" id="bi-weekly" />
+                    <Label htmlFor='bi-weekly' className="font-normal">Bi-weekly</Label>
+                </FormItem>
+                 <FormItem className="flex items-center space-x-2 space-y-0">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor='monthly' className="font-normal">Monthly</Label>
+                </FormItem>
+            </RadioGroup>
           </div>
           <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
             {isLoading ? (

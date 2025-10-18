@@ -29,7 +29,9 @@ const GenerateMealPlanInputSchema = z.object({
     heightUnit: z.enum(['cm', 'ft']).optional(),
     nutritionalGoals: z.array(z.string()).describe('Nutritional goals like weight loss, staying fit, weight gain').optional(),
     activityLevel: z.enum(['very', 'not', 'medium']).optional(),
-    budget: z.number().optional().describe('Weekly or monthly budget for meal plan'),
+    budget: z.number().optional().describe('Budget for meal plan'),
+    budgetFrequency: z.enum(['weekly', 'bi-weekly', 'monthly']).optional().describe('Frequency of the budget (weekly, bi-weekly, or monthly)'),
+    preferences: z.string().optional().describe('User-specified preferences for the meal plan'),
   }).optional(),
 });
 
@@ -67,7 +69,8 @@ const prompt = ai.definePrompt({
   Height: {{userProfile.height}} {{userProfile.heightUnit}}
   Nutritional Goals: {{#each userProfile.nutritionalGoals}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
   Activity Level: {{userProfile.activityLevel}}
-  Budget: {{userProfile.budget}}
+  Budget: {{userProfile.budget}} ({{userProfile.budgetFrequency}})
+  {{#if userProfile.preferences}}Preferences: {{userProfile.preferences}}{{/if}}
   {{else}}
   No user profile provided.
   {{/if}}

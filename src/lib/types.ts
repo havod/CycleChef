@@ -14,6 +14,8 @@ export type UserProfile = {
   nutritionalGoals?: string[];
   activityLevel?: 'very' | 'not' | 'medium';
   budget?: number;
+  budgetFrequency?: 'weekly' | 'bi-weekly' | 'monthly';
+  preferences?: string;
 };
 
 export type ImagePlaceholder = {
