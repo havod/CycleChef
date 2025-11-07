@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { useApp } from '@/components/providers';
-import { deriveGroceryList, DeriveGroceryListOutput } from '@/ai/flows/derive-grocery-list';
+import { deriveGroceryList } from '@/ai/flows/derive-grocery-list';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
@@ -19,8 +19,7 @@ import { countryData } from '@/lib/data';
 const defaultStore = 'Any Store';
 
 export default function GroceryListPage() {
-  const { mealPlan, profile } = useApp();
-  const [groceryList, setGroceryList] = useState<DeriveGroceryListOutput | null>(null);
+  const { mealPlan, profile, groceryList, setGroceryList } = useApp();
   
   const userCountry = profile?.country || 'USA';
   const countryInfo = useMemo(() => countryData[userCountry] || countryData['Other'], [userCountry]);
@@ -34,7 +33,7 @@ export default function GroceryListPage() {
     if (!mealPlan) return;
 
     setIsLoading(true);
-    setGroceryList(null);
+    // Don't clear grocery list from context here, to avoid flash of empty content
     try {
       const output = await deriveGroceryList({
         mealPlan: mealPlan.mealPlan,
@@ -54,15 +53,20 @@ export default function GroceryListPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [mealPlan, profile, toast, countryInfo]);
+  }, [mealPlan, profile, toast, countryInfo, setGroceryList]);
 
   useEffect(() => {
-    if (mealPlan) {
+    // If there's a meal plan but no grocery list, generate one.
+    if (mealPlan && !groceryList) {
       generateList(selectedStore);
     }
-  }, [mealPlan, selectedStore, generateList]);
-  
-    // Reset selected store if it's not in the new list of available stores
+  }, [mealPlan, groceryList, selectedStore, generateList]);
+
+  const handleRefresh = () => {
+    generateList(selectedStore);
+  }
+
+  // Reset selected store if it's not in the new list of available stores
   useEffect(() => {
     if (!availableStores.includes(selectedStore)) {
         setSelectedStore(defaultStore);
@@ -75,7 +79,7 @@ export default function GroceryListPage() {
   };
   
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading && !groceryList) { // Only show skeleton on initial load
         return (
             <Card>
                 <CardContent className="p-6">
@@ -115,6 +119,7 @@ export default function GroceryListPage() {
             <div id="grocery-list-area" className="print-area">
                 <Card>
                     <CardContent className="p-6">
+                        {isLoading && <p className='text-sm text-muted-foreground mb-4'>Updating list...</p>}
                         <InteractiveGroceryList markdownContent={groceryList.groceryList} />
                          {groceryList.estimatedPrice && (
                           <div className="mt-6 border-t pt-4 text-right">
@@ -146,7 +151,10 @@ export default function GroceryListPage() {
             <div className="flex items-center gap-4">
               <div className="grid gap-1.5">
                 <Label htmlFor="grocery-store">Store</Label>
-                 <Select onValueChange={setSelectedStore} value={selectedStore}>
+                 <Select onValueChange={(value) => {
+                    setSelectedStore(value);
+                    generateList(value);
+                 }} value={selectedStore}>
                   <SelectTrigger id="grocery-store" className="w-48">
                     <SelectValue placeholder="Select a store" />
                   </SelectTrigger>
