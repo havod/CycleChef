@@ -11,10 +11,11 @@ import { deriveGroceryList } from '@/ai/flows/derive-grocery-list';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { InteractiveGroceryList } from '@/components/interactive-grocery-list';
+import { InteractiveGroceryList, type GroceryListMode } from '@/components/interactive-grocery-list';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { countryData } from '@/lib/data';
+import { Switch } from '@/components/ui/switch';
 
 const defaultStore = 'Any Store';
 
@@ -27,6 +28,9 @@ export default function GroceryListPage() {
   
   const [selectedStore, setSelectedStore] = useState<string>(defaultStore);
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<GroceryListMode>('pre-shop');
+  const [finalPrice, setFinalPrice] = useState<number | null>(null);
+
   const { toast } = useToast();
 
   const generateList = useCallback(async (store: string) => {
@@ -43,6 +47,7 @@ export default function GroceryListPage() {
         currency: countryInfo.currency,
       });
       setGroceryList(output);
+      setFinalPrice(output.estimatedPrice || 0);
     } catch (error) {
       console.error(error);
       toast({
@@ -59,6 +64,8 @@ export default function GroceryListPage() {
     // If there's a meal plan but no grocery list, generate one.
     if (mealPlan && !groceryList) {
       generateList(selectedStore);
+    } else if (groceryList) {
+      setFinalPrice(groceryList.estimatedPrice || 0);
     }
   }, [mealPlan, groceryList, selectedStore, generateList]);
 
@@ -120,11 +127,16 @@ export default function GroceryListPage() {
                 <Card>
                     <CardContent className="p-6">
                         {isLoading && <p className='text-sm text-muted-foreground mb-4'>Updating list...</p>}
-                        <InteractiveGroceryList markdownContent={groceryList.groceryList} />
-                         {groceryList.estimatedPrice && (
+                        <InteractiveGroceryList 
+                            markdownContent={groceryList.groceryList}
+                            mode={mode}
+                            initialPrice={groceryList.estimatedPrice || 0}
+                            onPriceChange={setFinalPrice}
+                        />
+                         {finalPrice !== null && (
                           <div className="mt-6 border-t pt-4 text-right">
                               <p className="text-lg font-semibold">
-                                  Estimated Total: <span className='font-bold'>{countryInfo.currencySymbol}{groceryList.estimatedPrice.toFixed(2)}</span>
+                                  Estimated Total: <span className='font-bold'>{countryInfo.currencySymbol}{finalPrice.toFixed(2)}</span>
                               </p>
                           </div>
                         )}
@@ -149,6 +161,14 @@ export default function GroceryListPage() {
           </div>
            {groceryList && (
             <div className="flex items-center gap-4">
+               <div className="flex items-center space-x-2 self-end">
+                <Label htmlFor="mode-switch">{mode === 'pre-shop' ? 'Pre-Shop' : 'Shopping'}</Label>
+                <Switch 
+                  id="mode-switch" 
+                  checked={mode === 'shopping'} 
+                  onCheckedChange={(checked) => setMode(checked ? 'shopping' : 'pre-shop')} 
+                />
+              </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="grocery-store">Store</Label>
                  <Select onValueChange={(value) => {

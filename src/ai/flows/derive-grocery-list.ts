@@ -56,8 +56,8 @@ const prompt = ai.definePrompt({
   The grocery list should:
   - Include all ingredients necessary for the meal plan.
   - Estimate prices for each item in {{currency}}, based on the specified country and grocery store.
-  - Group items by store section (e.g., Produce, Dairy, Meat, Pantry).
-  - Format the output using Markdown. Use headings for sections.
+  - The format for each item must be: \`* [Item Name] - [Price]\`. For example: \`* Milk (1 gallon) - 3.50\`
+  - Group items by store section (e.g., Produce, Dairy, Meat, Pantry) using Markdown headings.
   - At the end of the generation, provide a total estimated price for all items in the list.
   `,
 });

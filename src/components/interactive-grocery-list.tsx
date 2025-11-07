@@ -3,16 +3,22 @@
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { useId, useState } from 'react';
+import { useId, useState, useMemo, useEffect } from 'react';
+
+export type GroceryListMode = 'pre-shop' | 'shopping';
 
 type LineItem = {
   id: string;
   type: 'heading' | 'item' | 'text';
   content: string;
   level?: number;
+  price?: number;
 };
 
-// A simple parser for the expected markdown format from the AI.
+// Regex to capture item and price: "* Item - 1.23"
+const itemRegex = /^\s*[-*]\s*(.*?)\s*-\s*(\d+(\.\d{1,2})?)\s*$/;
+
+// A more robust parser for the expected markdown format from the AI.
 const parseMarkdown = (markdown: string, idPrefix: string): LineItem[] => {
   return markdown
     .split('\n')
@@ -26,9 +32,19 @@ const parseMarkdown = (markdown: string, idPrefix: string): LineItem[] => {
       if (trimmedLine.startsWith('### ')) {
         return { id, type: 'heading', content: trimmedLine.substring(4), level: 3 };
       }
+      
+      const match = trimmedLine.match(itemRegex);
+      if (match) {
+        const content = match[1].trim();
+        const price = parseFloat(match[2]);
+        return { id, type: 'item', content, price };
+      }
+
+      // Fallback for items without a price
       if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
         return { id, type: 'item', content: trimmedLine.substring(2) };
       }
+
       if (trimmedLine === '') {
         return null;
       }
@@ -37,42 +53,91 @@ const parseMarkdown = (markdown: string, idPrefix: string): LineItem[] => {
     .filter((item): item is LineItem => item !== null);
 };
 
-export function InteractiveGroceryList({ markdownContent }: { markdownContent: string }) {
+
+interface InteractiveGroceryListProps {
+  markdownContent: string;
+  mode: GroceryListMode;
+  initialPrice: number;
+  onPriceChange: (newPrice: number) => void;
+}
+
+export function InteractiveGroceryList({ markdownContent, mode, initialPrice, onPriceChange }: InteractiveGroceryListProps) {
   const idPrefix = useId();
-  const items = parseMarkdown(markdownContent, idPrefix);
+  const items = useMemo(() => parseMarkdown(markdownContent, idPrefix), [markdownContent, idPrefix]);
+
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    // Reset checks when mode changes
+    setCheckedItems({});
+  }, [mode]);
+
+  useEffect(() => {
+    if (mode === 'pre-shop') {
+      const remainingPrice = items.reduce((total, item) => {
+        if (item.type === 'item' && item.price && !checkedItems[item.id]) {
+          return total + item.price;
+        }
+        return total;
+      }, 0);
+      onPriceChange(remainingPrice);
+    } else {
+      // In shopping mode, the price doesn't change, so reset to initial
+      onPriceChange(initialPrice);
+    }
+  }, [checkedItems, mode, items, onPriceChange, initialPrice]);
+
+  const handleCheckChange = (itemId: string, isChecked: boolean) => {
+    setCheckedItems(prev => ({ ...prev, [itemId]: isChecked }));
+  };
 
   return (
     <div className="space-y-2">
       {items.map((item) => {
-        if (item.type === 'heading') {
-          if (item.level === 2) {
+        switch (item.type) {
+          case 'heading':
+            if (item.level === 2) {
+              return <h2 key={item.id} className="text-2xl font-headline font-bold mt-6 mb-2 border-b pb-2">{item.content}</h2>;
+            }
+            return <h3 key={item.id} className="text-xl font-headline font-semibold mt-4 mb-2">{item.content}</h3>;
+          
+          case 'item':
             return (
-              <h2 key={item.id} className="text-2xl font-headline font-bold mt-6 mb-2 border-b pb-2">
-                {item.content}
-              </h2>
+              <GroceryListItem
+                key={item.id}
+                id={item.id}
+                label={item.content}
+                price={item.price}
+                isChecked={!!checkedItems[item.id]}
+                onCheckedChange={(checked) => handleCheckChange(item.id, checked)}
+                mode={mode}
+              />
             );
-          }
-          return (
-            <h3 key={item.id} className="text-xl font-headline font-semibold mt-4 mb-2">
-              {item.content}
-            </h3>
-          );
+
+          case 'text':
+            return <p key={item.id} className="text-sm text-muted-foreground">{item.content}</p>;
+          
+          default:
+            return null;
         }
-        if (item.type === 'item') {
-          return <GroceryListItem key={item.id} id={item.id} label={item.content} />;
-        }
-        return (
-          <p key={item.id} className="text-sm text-muted-foreground">
-            {item.content}
-          </p>
-        );
       })}
     </div>
   );
 }
 
-function GroceryListItem({ id, label }: { id: string; label: string }) {
-  const [isChecked, setIsChecked] = useState(false);
+interface GroceryListItemProps {
+  id: string;
+  label: string;
+  price?: number;
+  isChecked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  mode: GroceryListMode;
+}
+
+function GroceryListItem({ id, label, price, isChecked, onCheckedChange, mode }: GroceryListItemProps) {
+  const isStrikethrough = 
+    (mode === 'pre-shop' && isChecked) || // "I have this"
+    (mode === 'shopping' && isChecked);  // "I picked this up"
 
   return (
     <div className="flex items-start space-x-3 rounded-md -mx-2 px-2 py-1.5 hover:bg-muted/50 transition-colors">
@@ -80,7 +145,7 @@ function GroceryListItem({ id, label }: { id: string; label: string }) {
         <Checkbox
             id={id}
             className="mt-1 print:hidden"
-            onCheckedChange={(checked) => setIsChecked(Boolean(checked))}
+            onCheckedChange={(checked) => onCheckedChange(Boolean(checked))}
             checked={isChecked}
         />
         <div className="grid gap-1.5 leading-none flex-1">
@@ -89,10 +154,11 @@ function GroceryListItem({ id, label }: { id: string; label: string }) {
                 className={cn(
                     'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
                     'print:font-normal',
-                    isChecked && 'line-through text-muted-foreground'
+                    isStrikethrough && 'line-through text-muted-foreground'
                 )}
             >
                 {label}
+                {mode === 'pre-shop' && price && <span className={cn('ml-2 text-xs', isChecked ? 'text-muted-foreground' : 'text-primary/80')}>(${price.toFixed(2)})</span>}
             </label>
         </div>
     </div>
