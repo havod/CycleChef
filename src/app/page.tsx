@@ -40,7 +40,7 @@ export default function DashboardPage() {
   return (
     <div className="container relative">
       <PageHeader className="pb-8">
-        <PageHeaderHeading className="font-headline">Welcome to CycleChef</PageHeaderHeading>
+        <PageHeaderHeading className="font-headline">Welcome to SmartHer Meal</PageHeaderHeading>
         <PageHeaderDescription>
           Your personal AI-powered nutrition assistant for hormonal health.
           Understand your body, eat in harmony with your cycle, and feel your best.

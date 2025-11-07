@@ -18,7 +18,7 @@ export function Logo({ className }: { className?: string }) {
         <path d="m14.5 4.5-.4.4" />
       </svg>
       <span className="font-headline text-xl font-bold tracking-tight text-foreground">
-        CycleChef
+        SmartHer Meal
       </span>
     </div>
   );

@@ -6,7 +6,7 @@ import { Providers } from '@/components/providers';
 import { AppLayout } from '@/components/app-layout';
 
 export const metadata: Metadata = {
-  title: 'CycleChef',
+  title: 'SmartHer Meal',
   description: 'Your personal AI-powered nutrition assistant for hormonal health.',
 };
 

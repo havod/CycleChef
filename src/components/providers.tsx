@@ -25,17 +25,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const storedProfile = localStorage.getItem('cycleChefProfile');
+      const storedProfile = localStorage.getItem('smartHerMealProfile');
       if (storedProfile) {
         setProfile(JSON.parse(storedProfile));
       }
 
-      const storedMealPlan = localStorage.getItem('cycleChefMealPlan');
+      const storedMealPlan = localStorage.getItem('smartHerMealMealPlan');
       if (storedMealPlan) {
         setMealPlanState(JSON.parse(storedMealPlan));
       }
       
-      const storedRecipes = localStorage.getItem('cycleChefRecipes');
+      const storedRecipes = localStorage.getItem('smartHerMealRecipes');
       if (storedRecipes) {
         const userRecipes = JSON.parse(storedRecipes) as Recipe[];
         setRecipes(prev => [...prev, ...userRecipes]);
@@ -51,7 +51,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const updateProfile = useCallback((data: UserProfile) => {
     setProfile(data);
     try {
-      localStorage.setItem('cycleChefProfile', JSON.stringify(data));
+      localStorage.setItem('smartHerMealProfile', JSON.stringify(data));
     } catch (error) {
       console.error('Failed to save profile to localStorage', error);
     }
@@ -61,9 +61,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     setMealPlanState(plan);
     try {
       if (plan) {
-        localStorage.setItem('cycleChefMealPlan', JSON.stringify(plan));
+        localStorage.setItem('smartHerMealMealPlan', JSON.stringify(plan));
       } else {
-        localStorage.removeItem('cycleChefMealPlan');
+        localStorage.removeItem('smartHerMealMealPlan');
       }
     } catch (error) {
       console.error('Failed to save meal plan to localStorage', error);
@@ -75,7 +75,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       const newRecipes = [...prevRecipes, recipe];
       try {
         const userRecipes = newRecipes.filter(r => r.id.startsWith('user-'));
-        localStorage.setItem('cycleChefRecipes', JSON.stringify(userRecipes));
+        localStorage.setItem('smartHerMealRecipes', JSON.stringify(userRecipes));
       } catch (error) {
         console.error('Failed to save recipes to localStorage', error);
       }
