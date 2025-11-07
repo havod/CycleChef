@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +44,7 @@ const profileFormSchema = z.object({
   healthConditions: z.array(z.string()).optional(),
   weight: z.coerce.number().min(1).optional(),
   weightUnit: z.enum(['kg', 'lbs']).default('kg').optional(),
-  height: z.coerce.number().min(1).optional(),
+  height: z.union([z.string(), z.coerce.number()]).optional(),
   heightUnit: z.enum(['cm', 'ft']).default('cm').optional(),
   nutritionalGoals: z.array(z.string()).optional(),
   activityLevel: z.enum(['very', 'not', 'medium']).optional(),
@@ -67,6 +68,8 @@ export default function ProfilePage() {
       heightUnit: 'cm',
     },
   });
+
+  const heightUnit = form.watch('heightUnit');
 
   useEffect(() => {
     if (profile) {
@@ -204,14 +207,19 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className='grid grid-cols-2 gap-2 items-end'>
-                    <FormField
+                     <FormField
                       control={form.control}
                       name="height"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Height</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="170" {...field} />
+                            <Input
+                              type={heightUnit === 'ft' ? 'text' : 'number'}
+                              placeholder={heightUnit === 'ft' ? "5'10\"" : '170'}
+                              {...field}
+                              value={field.value || ''}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

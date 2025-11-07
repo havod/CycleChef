@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Adjusts the weekly budget and regenerates the meal plan accordingly.
@@ -29,7 +30,7 @@ const AdjustBudgetAndRegenerateInputSchema = z.object({
     healthConditions: z.array(z.string()).describe('Health conditions like Endometriosis, PCOS, acne, etc.').optional(),
     weight: z.number().optional(),
     weightUnit: z.enum(['kg', 'lbs']).optional(),
-    height: z.number().optional(),
+    height: z.union([z.string(), z.number()]).optional(),
     heightUnit: z.enum(['cm', 'ft']).optional(),
     nutritionalGoals: z.array(z.string()).describe('Nutritional goals like weight loss, staying fit, weight gain').optional(),
     activityLevel: z.enum(['very', 'not', 'medium']).optional(),

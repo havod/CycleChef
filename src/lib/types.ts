@@ -1,3 +1,4 @@
+
 export type UserProfile = {
   name?: string;
   age?: number;
@@ -9,7 +10,7 @@ export type UserProfile = {
   healthConditions?: string[];
   weight?: number;
   weightUnit?: 'kg' | 'lbs';
-  height?: number;
+  height?: number | string;
   heightUnit?: 'cm' | 'ft';
   nutritionalGoals?: string[];
   activityLevel?: 'very' | 'not' | 'medium';
