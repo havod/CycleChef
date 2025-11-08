@@ -65,30 +65,30 @@ export function InteractiveGroceryList({ markdownContent, mode, initialPrice, on
   const idPrefix = useId();
   const items = useMemo(() => parseMarkdown(markdownContent, idPrefix), [markdownContent, idPrefix]);
 
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    // Reset checks when mode changes
-    setCheckedItems({});
-  }, [mode]);
+  const [preShopChecked, setPreShopChecked] = useState<Record<string, boolean>>({});
+  const [shoppingChecked, setShoppingChecked] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (mode === 'pre-shop') {
       const remainingPrice = items.reduce((total, item) => {
-        if (item.type === 'item' && item.price && !checkedItems[item.id]) {
+        if (item.type === 'item' && item.price && !preShopChecked[item.id]) {
           return total + item.price;
         }
         return total;
       }, 0);
       onPriceChange(remainingPrice);
     } else {
-      // In shopping mode, the price doesn't change, so reset to initial
+      // In shopping mode, always show the original total.
       onPriceChange(initialPrice);
     }
-  }, [checkedItems, mode, items, onPriceChange, initialPrice]);
+  }, [preShopChecked, mode, items, onPriceChange, initialPrice]);
 
-  const handleCheckChange = (itemId: string, isChecked: boolean) => {
-    setCheckedItems(prev => ({ ...prev, [itemId]: isChecked }));
+  const handlePreShopCheck = (itemId: string, isChecked: boolean) => {
+    setPreShopChecked(prev => ({ ...prev, [itemId]: isChecked }));
+  };
+  
+  const handleShoppingCheck = (itemId: string, isChecked: boolean) => {
+    setShoppingChecked(prev => ({ ...prev, [itemId]: isChecked }));
   };
 
   return (
@@ -102,17 +102,39 @@ export function InteractiveGroceryList({ markdownContent, mode, initialPrice, on
             return <h3 key={item.id} className="text-xl font-headline font-semibold mt-4 mb-2">{item.content}</h3>;
           
           case 'item':
-            return (
-              <GroceryListItem
-                key={item.id}
-                id={item.id}
-                label={item.content}
-                price={item.price}
-                isChecked={!!checkedItems[item.id]}
-                onCheckedChange={(checked) => handleCheckChange(item.id, checked)}
-                mode={mode}
-              />
-            );
+            const isOwned = !!preShopChecked[item.id];
+            const isPicked = !!shoppingChecked[item.id];
+
+            if (mode === 'pre-shop') {
+                return (
+                  <GroceryListItem
+                    key={item.id}
+                    id={item.id}
+                    label={item.content}
+                    price={item.price}
+                    isChecked={isOwned}
+                    onCheckedChange={(checked) => handlePreShopCheck(item.id, checked)}
+                    mode={mode}
+                  />
+                );
+            }
+
+            if (mode === 'shopping') {
+                 return (
+                  <GroceryListItem
+                    key={item.id}
+                    id={item.id}
+                    label={item.content}
+                    price={item.price}
+                    isChecked={isOwned || isPicked}
+                    isDisabled={isOwned}
+                    onCheckedChange={(checked) => handleShoppingCheck(item.id, checked)}
+                    mode={mode}
+                  />
+                );
+            }
+
+            return null;
 
           case 'text':
             return <p key={item.id} className="text-sm text-muted-foreground">{item.content}</p>;
@@ -132,12 +154,11 @@ interface GroceryListItemProps {
   isChecked: boolean;
   onCheckedChange: (checked: boolean) => void;
   mode: GroceryListMode;
+  isDisabled?: boolean;
 }
 
-function GroceryListItem({ id, label, price, isChecked, onCheckedChange, mode }: GroceryListItemProps) {
-  const isStrikethrough = 
-    (mode === 'pre-shop' && isChecked) || // "I have this"
-    (mode === 'shopping' && isChecked);  // "I picked this up"
+function GroceryListItem({ id, label, price, isChecked, onCheckedChange, mode, isDisabled = false }: GroceryListItemProps) {
+  const isStrikethrough = isChecked;
 
   return (
     <div className="flex items-start space-x-3 rounded-md -mx-2 px-2 py-1.5 hover:bg-muted/50 transition-colors">
@@ -147,19 +168,23 @@ function GroceryListItem({ id, label, price, isChecked, onCheckedChange, mode }:
             className="mt-1 print:hidden"
             onCheckedChange={(checked) => onCheckedChange(Boolean(checked))}
             checked={isChecked}
+            disabled={isDisabled}
         />
         <div className="grid gap-1.5 leading-none flex-1">
             <label
                 htmlFor={id}
                 className={cn(
-                    'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+                    'text-sm font-medium leading-none',
+                    isDisabled ? 'cursor-not-allowed text-muted-foreground' : 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
                     'print:font-normal',
-                    isStrikethrough && 'line-through text-muted-foreground'
+                    isStrikethrough && 'line-through',
+                    isStrikethrough && !isDisabled && 'text-muted-foreground',
                 )}
             >
                 {label}
                 {mode === 'pre-shop' && price && <span className={cn('ml-2 text-xs', isChecked ? 'text-muted-foreground' : 'text-primary/80')}>(${price.toFixed(2)})</span>}
             </label>
+             {isDisabled && <p className="text-xs text-muted-foreground">Already owned</p>}
         </div>
     </div>
   );
