@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Printer, ShoppingCart } from 'lucide-react';
+import { ShoppingCart, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,21 +69,12 @@ export default function GroceryListPage() {
     }
   }, [mealPlan, groceryList, selectedStore, generateList]);
 
-  const handleRefresh = () => {
-    generateList(selectedStore);
-  }
-
   // Reset selected store if it's not in the new list of available stores
   useEffect(() => {
     if (!availableStores.includes(selectedStore)) {
         setSelectedStore(defaultStore);
     }
   }, [availableStores, selectedStore]);
-
-
-  const handlePrint = () => {
-    window.print();
-  };
   
   const renderContent = () => {
     if (isLoading && !groceryList) { // Only show skeleton on initial load
@@ -185,10 +176,6 @@ export default function GroceryListPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handlePrint} variant="outline" size="icon" className="hidden md:inline-flex self-end">
-                <Printer className="size-4" />
-                <span className="sr-only">Print List</span>
-              </Button>
             </div>
           )}
         </div>
@@ -196,12 +183,6 @@ export default function GroceryListPage() {
       
       {renderContent()}
 
-      {groceryList && (
-       <Button onClick={handlePrint} variant="default" className="w-full mt-6 md:hidden no-print">
-            <Printer className="size-4 mr-2" />
-            Print List
-        </Button>
-      )}
     </div>
   );
 }
