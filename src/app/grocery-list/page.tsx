@@ -151,7 +151,7 @@ export default function GroceryListPage() {
             </PageHeaderDescription>
           </div>
            {groceryList && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 ml-auto">
                <div className="flex items-center space-x-2 self-end">
                 <Label htmlFor="mode-switch">{mode === 'pre-shop' ? 'Pre-Shop' : 'Shopping'}</Label>
                 <Switch 
