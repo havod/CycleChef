@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useAppStore } from '../../store/useAppStore';
 import { Ionicons } from '@expo/vector-icons';
+import 'expo-router/entry';
 
 export default function DashboardScreen() {
   const router = useRouter();
