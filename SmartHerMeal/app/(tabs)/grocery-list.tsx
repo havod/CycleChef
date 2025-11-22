@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useAppStore } from '../../store/useAppStore';
 import { useRouter } from 'expo-router';
 
-export function GroceryListScreen() {
+export default function GroceryListScreen() {
   const { groceryList, toggleGroceryItem } = useAppStore();
 
   return (
