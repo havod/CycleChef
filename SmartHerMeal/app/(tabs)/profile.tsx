@@ -7,10 +7,80 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Modal,
+  FlatList,
 } from 'react-native';
-//import { useAppStore, UserProfile } from '@/store/useAppStore';
 import { useAppStore, UserProfile } from '../../store/useAppStore';
-import { Picker } from '@react-native-picker/picker';
+import { Ionicons } from '@expo/vector-icons';
+
+// Custom Dropdown Component
+interface DropdownProps {
+  value: string;
+  items: { label: string; value: string }[];
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+}
+
+const Dropdown: React.FC<DropdownProps> = ({ value, items, onValueChange, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedItem = items.find(item => item.value === value);
+
+  return (
+    <View style={styles.dropdownContainer}>
+      <TouchableOpacity
+        style={styles.dropdownButton}
+        onPress={() => setIsOpen(true)}
+      >
+        <Text style={styles.dropdownButtonText}>
+          {selectedItem?.label || placeholder || 'Select...'}
+        </Text>
+        <Ionicons name="chevron-down" size={20} color="#666" />
+      </TouchableOpacity>
+
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsOpen(false)}
+        >
+          <View style={styles.modalContent}>
+            <FlatList
+              data={items}
+              keyExtractor={(item) => item.value}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.modalItem,
+                    item.value === value && styles.modalItemSelected
+                  ]}
+                  onPress={() => {
+                    onValueChange(item.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.modalItemText,
+                    item.value === value && styles.modalItemTextSelected
+                  ]}>
+                    {item.label}
+                  </Text>
+                  {item.value === value && (
+                    <Ionicons name="checkmark" size={20} color="#D0B7D6" />
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
 
 export default function ProfileScreen() {
   const { profile, updateProfile } = useAppStore();
@@ -49,6 +119,44 @@ export default function ProfileScreen() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Dropdown options
+  const genderOptions = [
+    { label: 'Female', value: 'female' },
+    { label: 'Male', value: 'male' },
+    { label: 'Non-binary', value: 'non-binary' },
+    { label: 'Prefer not to say', value: 'prefer-not-to-say' },
+  ];
+
+  const weightUnitOptions = [
+    { label: 'kg', value: 'kg' },
+    { label: 'lbs', value: 'lbs' },
+  ];
+
+  const heightUnitOptions = [
+    { label: 'cm', value: 'cm' },
+    { label: 'ft', value: 'ft' },
+  ];
+
+  const activityLevelOptions = [
+    { label: 'Sedentary', value: 'sedentary' },
+    { label: 'Lightly Active', value: 'lightly-active' },
+    { label: 'Moderately Active', value: 'moderately-active' },
+    { label: 'Very Active', value: 'very-active' },
+    { label: 'Extremely Active', value: 'extremely-active' },
+  ];
+
+  const menstrualCycleOptions = [
+    { label: 'Regular', value: 'regular' },
+    { label: 'Irregular', value: 'irregular' },
+    { label: 'Not Applicable', value: 'not-applicable' },
+  ];
+
+  const budgetFrequencyOptions = [
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Bi-weekly', value: 'bi-weekly' },
+    { label: 'Monthly', value: 'monthly' },
+  ];
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.section}>
@@ -72,16 +180,11 @@ export default function ProfileScreen() {
         />
 
         <Text style={styles.label}>Gender</Text>
-        <Picker
-          selectedValue={formData.gender}
+        <Dropdown
+          value={formData.gender || 'female'}
+          items={genderOptions}
           onValueChange={(value) => updateField('gender', value)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Female" value="female" />
-          <Picker.Item label="Male" value="male" />
-          <Picker.Item label="Non-binary" value="non-binary" />
-          <Picker.Item label="Prefer not to say" value="prefer-not-to-say" />
-        </Picker>
+        />
 
         <Text style={styles.label}>Country</Text>
         <TextInput
@@ -98,91 +201,71 @@ export default function ProfileScreen() {
         <Text style={styles.label}>Weight</Text>
         <View style={styles.row}>
           <TextInput
-            style={[styles.input, styles.flex1]}
+            style={styles.halfInput}
             value={formData.weight?.toString()}
             onChangeText={(text) => updateField('weight', parseFloat(text) || 0)}
             keyboardType="numeric"
             placeholder="Weight"
           />
-          <Picker
-            selectedValue={formData.weightUnit}
+          <Dropdown
+            value={formData.weightUnit || 'kg'}
+            items={weightUnitOptions}
             onValueChange={(value) => updateField('weightUnit', value)}
-            style={styles.unitPicker}
-          >
-            <Picker.Item label="kg" value="kg" />
-            <Picker.Item label="lbs" value="lbs" />
-          </Picker>
+          />
         </View>
 
         <Text style={styles.label}>Height</Text>
         <View style={styles.row}>
           <TextInput
-            style={[styles.input, styles.flex1]}
+            style={styles.halfInput}
             value={formData.height?.toString()}
             onChangeText={(text) => updateField('height', parseFloat(text) || 0)}
             keyboardType="numeric"
             placeholder="Height"
           />
-          <Picker
-            selectedValue={formData.heightUnit}
+          <Dropdown
+            value={formData.heightUnit || 'cm'}
+            items={heightUnitOptions}
             onValueChange={(value) => updateField('heightUnit', value)}
-            style={styles.unitPicker}
-          >
-            <Picker.Item label="cm" value="cm" />
-            <Picker.Item label="ft" value="ft" />
-          </Picker>
+          />
         </View>
 
         <Text style={styles.label}>Activity Level</Text>
-        <Picker
-          selectedValue={formData.activityLevel}
+        <Dropdown
+          value={formData.activityLevel || 'moderately-active'}
+          items={activityLevelOptions}
           onValueChange={(value) => updateField('activityLevel', value)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Sedentary" value="sedentary" />
-          <Picker.Item label="Lightly Active" value="lightly-active" />
-          <Picker.Item label="Moderately Active" value="moderately-active" />
-          <Picker.Item label="Very Active" value="very-active" />
-          <Picker.Item label="Extremely Active" value="extremely-active" />
-        </Picker>
+        />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Health Information</Text>
         
         <Text style={styles.label}>Menstrual Cycle</Text>
-        <Picker
-          selectedValue={formData.menstrualCycle}
+        <Dropdown
+          value={formData.menstrualCycle || 'regular'}
+          items={menstrualCycleOptions}
           onValueChange={(value) => updateField('menstrualCycle', value)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Regular" value="regular" />
-          <Picker.Item label="Irregular" value="irregular" />
-          <Picker.Item label="Not Applicable" value="not-applicable" />
-        </Picker>
+        />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Budget</Text>
         
-        <Text style={styles.label}>Weekly Budget</Text>
+        <Text style={styles.label}>Budget Amount</Text>
         <View style={styles.row}>
           <TextInput
-            style={[styles.input, styles.flex1]}
+            style={styles.halfInput}
             value={formData.budget?.toString()}
             onChangeText={(text) => updateField('budget', parseFloat(text) || 0)}
             keyboardType="numeric"
             placeholder="Budget amount"
           />
-          <Picker
-            selectedValue={formData.budgetFrequency}
+          <Dropdown
+            value={formData.budgetFrequency || 'weekly'}
+            items={budgetFrequencyOptions}
             onValueChange={(value) => updateField('budgetFrequency', value)}
-            style={styles.unitPicker}
-          >
-            <Picker.Item label="Weekly" value="weekly" />
-            <Picker.Item label="Bi-weekly" value="bi-weekly" />
-            <Picker.Item label="Monthly" value="monthly" />
-          </Picker>
+          />
         </View>
       </View>
 
@@ -223,19 +306,71 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
-  },
-  picker: {
-    marginBottom: 16,
+    backgroundColor: '#fff',
   },
   row: {
     flexDirection: 'row',
     gap: 8,
+    marginBottom: 16,
   },
-  flex1: {
+  halfInput: {
+    flex: 0.6,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  // Dropdown styles
+  dropdownContainer: {
+    flex: 1.4,
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#fff',
+  },
+  dropdownButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  unitPicker: {
-    width: 100,
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    width: '80%',
+    maxHeight: '60%',
+    overflow: 'hidden',
+  },
+  modalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalItemSelected: {
+    backgroundColor: '#F5F0F6',
+  },
+  modalItemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalItemTextSelected: {
+    color: '#D0B7D6',
+    fontWeight: '600',
   },
   button: {
     backgroundColor: '#D0B7D6',
