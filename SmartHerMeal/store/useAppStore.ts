@@ -43,20 +43,6 @@ export interface Recipe {
   cyclePhase?: string[];
 }
 
-export interface MealPlan {
-  id: string;
-  weekNumber?: number;
-  totalCalories: number;
-  totalCost?: number;
-  meals: {
-    day: string;
-    breakfast: Recipe;
-    lunch: Recipe;
-    dinner: Recipe;
-    snacks?: Recipe[];
-  }[];
-}
-
 export interface GroceryList {
   items: {
     name: string;
@@ -67,6 +53,21 @@ export interface GroceryList {
   }[];
   totalEstimatedCost?: number;
   generatedFrom?: string; // meal plan id
+}
+
+export interface MealPlan {
+  id: string;
+  weekNumber?: number;
+  totalCalories: number;
+  totalCost?: number;
+  rawPlan?: string; 
+  meals: {
+    day: string;
+    breakfast: Recipe;
+    lunch: Recipe;
+    dinner: Recipe;
+    snacks?: Recipe[];
+  }[];
 }
 
 interface AppState {
